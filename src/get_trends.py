@@ -16,9 +16,13 @@ def get_github_trends() -> list:
         rep = h2_art.find('a')
         _, owner, repo_info['work_name'] = rep['href'].split('/')
         repo_info['url'] = f'https://github.com/{owner}/{repo_info['work_name']}'
-        
+
+        desc = article.find('div', class_='f6').find('a').get_text()
+        repo_info['stars'] = int(str(desc).replace(',', ''))
+        print(repo_info)
+
         repos.append(repo_info)
-    return repos
+    #return repos
 
 def get_text_from_repo(url):
     pass
