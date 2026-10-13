@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import timedelta, datetime
+import config
 
 def get_github_trends() -> list:
     headers = {
@@ -22,7 +23,7 @@ def get_github_trends() -> list:
         print(repo_info)
 
         repos.append(repo_info)
-    #return repos
+    return repos
 
 def get_text_from_repo(url):
     pass
