@@ -16,16 +16,26 @@ def get_github_trends() -> list:
 
         rep = h2_art.find('a')
         _, owner, repo_info['work_name'] = rep['href'].split('/')
-        repo_info['url'] = f'https://github.com/{owner}/{repo_info['work_name']}'
+        repo_info['name'] = f'{owner}/{repo_info['work_name']}'
 
-        desc = article.find('div', class_='f6').find('a').get_text()
-        repo_info['stars'] = int(str(desc).replace(',', ''))
-        print(repo_info)
+        stars = article.find('div', class_='f6').find('a').get_text()
+        repo_info['stars'] = int(str(stars).replace(',', ''))
+
+        repo_info['description'] = article.find('p', class_='col-9').get_text().strip('\n ')
+
+        get_info_from_repo(repo_info)
 
         repos.append(repo_info)
     return repos
 
-def get_text_from_repo(url):
-    pass
+def get_info_from_repo(repo):
+    headers = {"Authorization": f"Bearer {config.token}"}
+    repo_info = requests.get(f'https://api.github.com/repos/{repo['name']}', headers=headers).json()
 
-get_github_trends()
+    repo['topics'] = repo_info.get('topics', [])
+
+    readme_info = requests.get(f'https://api.github.com/repos/{repo['name']}/readme', headers=headers).json()
+    repo['raw_readme_url'] = readme_info.get('download_url')
+
+
+#print(get_github_trends())
