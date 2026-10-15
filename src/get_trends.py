@@ -28,7 +28,7 @@ def get_github_trends() -> list:
         repos.append(repo_info)
     return repos
 
-def get_info_from_repo(repo):
+def get_info_from_repo(repo: str):
     headers = {"Authorization": f"Bearer {config.token}"}
     repo_info = requests.get(f'https://api.github.com/repos/{repo['name']}', headers=headers).json()
 
