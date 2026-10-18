@@ -1,0 +1,128 @@
+name: GitHub_trends
+
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.8.1
+  environment: &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airflow:5432/airflow
+    AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+    AWS_ACCESS_KEY_ID: test
+    AWS_SECRET_ACCESS_KEY: test
+    AWS_ENDPOINT_URL: http://s3_mock:9000
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+  depends_on: &airflow-common-depends-on
+    postgres_airflow:
+      condition: service_healthy
+    s3_mock:
+      condition: service_healthy
+  networks:
+    - airflow-network
+
+services:
+  postgres_main:
+    image: postgres:15
+    container_name: main_db
+    environment:
+      POSTGRES_USER: postgre
+      POSTGRES_PASSWORD: 1276
+      POSTGRES_DB: money
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./init_base:/docker-entrypoint-initdb.d/
+      - pgdata_main:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgre", "-d"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+    networks:
+      - airflow-network
+
+  postgres_airflow:
+    image: postgres:15
+    container_name: airflow_db
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - pgdata_airflow:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow", "-d", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+    networks:
+      - airflow-network
+
+  s3_mock:
+    build: . 
+    container_name: s3_mock
+    ports:
+      - "9000:9000"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/moto-api/"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    networks:
+      - airflow-network
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow_init
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_MIGRATE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: admin
+    command: version
+    depends_on:
+      postgres_airflow:
+        condition: service_healthy
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow_webserver
+    ports:
+      - "8085:8080"
+    command: webserver
+    restart: always
+    environment:
+      <<: *airflow-common-env
+      PYTHONPATH: "/opt/airflow"
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow_scheduler
+    command: scheduler
+    restart: always
+    environment:
+      <<: *airflow-common-env
+      PYTHONPATH: "/opt/airflow"
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+networks:
+  airflow-network:
+    driver: bridge
+
+volumes:
+  pgdata_main:
+  pgdata_airflow:
