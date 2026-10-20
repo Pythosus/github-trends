@@ -1,6 +1,5 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from bs4 import BeautifulSoup
-import pandas as pd
 import requests
 import re
 
@@ -14,8 +13,9 @@ def clean_readme(raw_text: str) -> str:
     return text
 
 def readme_text(url: str) -> str:
-    resp = requests.get(url, timeout=10)
-    return resp.text
+    resp = requests.get(url, timeout=10).text
+    clean_text = clean_readme(resp)
+    return clean_readme
 
 def extract_keywords(text: str, topics: list) -> dict:
     target_vocabulary = list(set([topic.lower() for topic in topics]))
