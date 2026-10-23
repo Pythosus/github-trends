@@ -17,7 +17,7 @@ def readme_text(url: str) -> str:
     clean_text = clean_readme(resp)
     return clean_readme
 
-def extract_keywords(text: str, topics: list) -> dict:
+def extract_keywords(text: str, topics: list) -> list:
     target_vocabulary = list(set([topic.lower() for topic in topics]))
     
     stop_words = {'project', 'open-source', 'license', 'installation', 'docker', 'github', 'repository'}
@@ -35,7 +35,7 @@ def extract_keywords(text: str, topics: list) -> dict:
     scores = tfidf_matrix.toarray()[0]
     
     keyword_scores = dict(zip(feature_names, scores))  #{слово: вес}
-    sorted_keywords = {
-        k: round(v, 4) for k, v in sorted(keyword_scores.items(), key=lambda item: item[1], reverse=True) if v > 0
-    }
-    return sorted_keywords
+    sorted_keywords = [
+        {k: round(v, 4)} for k, v in sorted(keyword_scores.items(), key=lambda item: item[1], reverse=True) if v > 0
+    ]
+    return sorted_keywords[:5]

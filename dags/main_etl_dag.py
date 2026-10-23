@@ -26,13 +26,14 @@ default_args = {
 
 bucket = 'bufer'
 
+
 @task(task_id='extract_info')
 def extract_info(**context) -> str:
     repos = get_github_trends()
 
     ds = context['ds']
     file_key = f'raw/{ds}.json'
-    json_bytes = json.dumps(repos[i], indent=2).encode('utf-8')
+    json_bytes = json.dumps(repos, indent=2).encode('utf-8')
 
     try:
         s3_client.create_bucket(Bucket=bucket)
@@ -49,14 +50,37 @@ def extract_info(**context) -> str:
     )
     return file_key
 
+
 @task(task_id='add_keywords')
-def transform_info(key: str):
+def transform_info(key: str, **context):
     response = s3_client.get_object(Bucket=bucket, Key=key)
     raw_bytes = response["Body"].read()
     repos = list(json.loads(raw_bytes.decode("utf-8")))
     for repo in repos:
         readme = readme_text(repo['url'])
         keysANDscores = extract_keywords(readme, repo['topics'])
+        repo['keywords'] = keysANDscores
+    
+    ds = context['ds']
+    file_key = f'medium/{ds}.json'
+    json_bytes = json.dumps(repos, indent=2).encode('utf-8')
+
+    s3_client.put_object(
+            Bucket=bucket,
+            Key=file_key,
+            Body=json_bytes,
+            ContentType='application/json'
+        )
+    return file_key
+
+
+
+@task(task_id='load_trends_info')
+def load_trends(file: str):
+    response = s3_client.get_object(Bucket=bucket, Key=file)
+    raw_bytes = response["Body"].read()
+    repos = list(json.loads(raw_bytes.decode("utf-8")))
+    
 
 with DAG(
     'main data trends dag',
