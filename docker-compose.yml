@@ -15,6 +15,7 @@ x-airflow-common: &airflow-common
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
+    - ./src:/opt/airflow/src
   depends_on: &airflow-common-depends-on
     postgres_airflow:
       condition: service_healthy
@@ -29,8 +30,8 @@ services:
     container_name: main_db
     environment:
       POSTGRES_USER: postgre
-      POSTGRES_PASSWORD: 1276
-      POSTGRES_DB: money
+      POSTGRES_PASSWORD: postgre
+      POSTGRES_DB: github_trends
     ports:
       - "5433:5432"
     volumes:

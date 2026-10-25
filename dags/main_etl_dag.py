@@ -3,7 +3,7 @@ from airflow.operators.python import PythonOperator
 from airflow.decorators import task
 from airflow.utils.dates import days_ago
 from datetime import datetime, timedelta
-from src.get_trends import *
+from src.get_trends import get_github_trends
 from src.search_keywords import readme_text, extract_keywords
 import boto3, json
 from botocore.exceptions import ClientError
