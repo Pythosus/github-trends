@@ -30,11 +30,11 @@ def get_github_trends() -> list:
 
 def get_info_from_repo(repo: str):
     headers = {"Authorization": f"Bearer {config.token}"}
-    repo_info = requests.get(f'https://api.github.com/repos/{repo['name']}', headers=headers).json()
+    repo_info = requests.get(f"https://api.github.com/repos/{repo['name']}", headers=headers).json()
 
     repo['topics'] = repo_info.get('topics', [])
 
-    readme_info = requests.get(f'https://api.github.com/repos/{repo['name']}/readme', headers=headers).json()
+    readme_info = requests.get(f"https://api.github.com/repos/{repo['name']}/readme", headers=headers).json()
     repo['raw_readme_url'] = readme_info.get('download_url')
 
 
