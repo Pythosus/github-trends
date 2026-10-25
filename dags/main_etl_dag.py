@@ -83,7 +83,7 @@ def load_trends(file: str):
     
 
 with DAG(
-    'main data trends dag',
+    'main_data_trends_dag',
     default_args=default_args,
     description='extract github trends, load to db, find top technologies, load result',
     schedule_interval='@daily',
