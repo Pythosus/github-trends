@@ -16,7 +16,7 @@ def get_github_trends() -> list:
 
         rep = h2_art.find('a')
         _, owner, repo_info['work_name'] = rep['href'].split('/')
-        repo_info['name'] = f'{owner}/{repo_info['work_name']}'
+        repo_info['name'] = f"{owner}/{repo_info['work_name']}"
 
         stars = article.find('div', class_='f6').find('a').get_text()
         repo_info['stars'] = int(str(stars).replace(',', ''))
