@@ -1,5 +1,5 @@
 CREATE TABLE repositories (
-	id_rep INT NOT NULL,
+	id_rep INT GENERATED ALWAYS AS IDENTITY,
 	name_rep VARCHAR(50) NOT NULL,
 	stars INT NOT NULL,
 	description TEXT NOT NULL,
@@ -9,8 +9,14 @@ CREATE TABLE repositories (
 
 CREATE TABLE keywords (
 	id_rep INT NOT NULL,
-	word VARCHAR(50) NOT NULL,
+	tech VARCHAR(50) NOT NULL,
 	score NUMERIC(5, 4) NOT NULL,
-	PRIMARY KEY (id_rep, word),
+	PRIMARY KEY (id_rep, tech),
 	FOREIGN KEY (id_rep) REFERENCES repositories(id_rep)
+);
+
+CREATE TABLE top_tech (
+	tech VARCHAR(50) NOT NULL,
+	total_score NUMERIC(5, 4) NOT NULL,
+	start_data DATE NOT NULL
 );
