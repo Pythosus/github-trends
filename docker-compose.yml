@@ -87,7 +87,7 @@ services:
       _AIRFLOW_WWW_USER_CREATE: 'true'
       _AIRFLOW_WWW_USER_USERNAME: admin
       _AIRFLOW_WWW_USER_PASSWORD: admin
-      _PIP_ADDITIONAL_REQUIREMENTS: 'scikit-learn beautifulsoup4 requests'
+      _PIP_ADDITIONAL_REQUIREMENTS: 'scikit-learn beautifulsoup4 requests psycopg2-binary'
     command: version
     depends_on:
       postgres_airflow:
@@ -103,7 +103,7 @@ services:
     environment:
       <<: *airflow-common-env
       PYTHONPATH: "/opt/airflow"
-      _PIP_ADDITIONAL_REQUIREMENTS: 'scikit-learn beautifulsoup4 requests'
+      _PIP_ADDITIONAL_REQUIREMENTS: 'scikit-learn beautifulsoup4 requests psycopg2-binary'
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -117,7 +117,7 @@ services:
     environment:
       <<: *airflow-common-env
       PYTHONPATH: "/opt/airflow"
-      _PIP_ADDITIONAL_REQUIREMENTS: 'scikit-learn beautifulsoup4 requests'
+      _PIP_ADDITIONAL_REQUIREMENTS: 'scikit-learn beautifulsoup4 requests psycopg2-binary'
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:

@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import timedelta, datetime
-from . import config
+from config import token
 
 def get_github_trends() -> list:
     headers = {
@@ -21,15 +21,18 @@ def get_github_trends() -> list:
         stars = article.find('div', class_='f6').find('a').get_text()
         repo_info['stars'] = int(str(stars).replace(',', ''))
 
-        repo_info['description'] = article.find('p', class_='col-9').get_text().strip('\n ')
-
+        try:
+            repo_info['description'] = article.find('p', class_='col-9').get_text().strip('\n ')
+        except Exception:
+            repo_info['description'] = 'No description'
+        
         get_info_from_repo(repo_info)
 
         repos.append(repo_info)
     return repos
 
 def get_info_from_repo(repo: str):
-    headers = {"Authorization": f"Bearer {config.token}"}
+    headers = {"Authorization": f"Bearer {token}"}
     repo_info = requests.get(f"https://api.github.com/repos/{repo['name']}", headers=headers).json()
 
     repo['topics'] = repo_info.get('topics', [])
