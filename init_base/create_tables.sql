@@ -18,5 +18,6 @@ CREATE TABLE keywords (
 CREATE TABLE top_tech (
 	tech VARCHAR(50) NOT NULL,
 	total_score NUMERIC(5, 4) NOT NULL,
-	start_date_ DATE NOT NULL
+	start_date_ DATE NOT NULL,
+	PRIMARY KEY (tech, start_date_)
 );
