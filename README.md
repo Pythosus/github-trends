@@ -40,7 +40,7 @@ ETL-пайплайн для анализа трендовых репозитор
 ### 1. Клонирование репозитория
 
 ```bash
-git clone https://github.com/<your-username>/github-trends.git
+git clone https://github.com/Pythosus/github-trends.git
 cd github-trends
 ```
 
