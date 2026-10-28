@@ -8,9 +8,9 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
-    AWS_ACCESS_KEY_ID: test
-    AWS_SECRET_ACCESS_KEY: test
-    AWS_ENDPOINT_URL: http://s3_mock:9000
+    AWS_ACCESS_KEY_ID: admin
+    AWS_SECRET_ACCESS_KEY: admin12345
+    AWS_ENDPOINT_URL: http://s3-mock:9000
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
@@ -19,7 +19,7 @@ x-airflow-common: &airflow-common
   depends_on: &airflow-common-depends-on
     postgres_airflow:
       condition: service_healthy
-    s3_mock:
+    s3-mock:
       condition: service_healthy
   networks:
     - airflow-network
@@ -64,9 +64,9 @@ services:
     networks:
       - airflow-network
 
-  s3_mock:
+  s3-mock:
     build: . 
-    container_name: s3_mock
+    container_name: s3-mock
     ports:
       - "9000:9000"
     restart: always

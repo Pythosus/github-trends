@@ -1,19 +1,15 @@
+import os
 from airflow import DAG
 from airflow.decorators import task
 from airflow.utils.dates import days_ago
 from datetime import datetime, timedelta
-from src.get_trends import get_github_trends
-from src.search_keywords import readme_text, extract_keywords
 import boto3, json
 from botocore.exceptions import ClientError
 import psycopg2
 
-s3_client = boto3.client(
-    "s3",
-    endpoint_url="http://localhost:9000",
-    aws_access_key_id="admin",
-    aws_secret_access_key="admin12345",
-)
+from src.get_trends import get_github_trends
+from src.search_keywords import readme_text, extract_keywords
+from src.config import get_s3_client, get_pg_connection, bucket
 
 
 default_args = {
@@ -24,12 +20,12 @@ default_args = {
     'start_date': datetime.now()
 }
 
-bucket = 'bufer'
-
 
 @task(task_id='extract_info')
 def extract_info(**context) -> str:
     repos = get_github_trends()
+
+    s3_client = get_s3_client()
 
     ds = context['ds']
     file_key = f'raw/{ds}.json'
@@ -54,11 +50,13 @@ def extract_info(**context) -> str:
 
 @task(task_id='add_keywords')
 def transform_info(key: str, **context):
+    s3_client = get_s3_client()
+
     response = s3_client.get_object(Bucket=bucket, Key=key)
     raw_bytes = response["Body"].read()
     repos = list(json.loads(raw_bytes.decode("utf-8")))
     for repo in repos:
-        readme = readme_text(repo['url'])
+        readme = readme_text(repo['raw_readme_url'])
         keysANDscores = extract_keywords(readme, repo['topics'])
         repo['keywords'] = keysANDscores
     
@@ -78,18 +76,15 @@ def transform_info(key: str, **context):
 
 @task(task_id='load_trends_info')
 def load_trends(file: str):
+    s3_client = get_s3_client()
+    
     response = s3_client.get_object(Bucket=bucket, Key=file)
     raw_bytes = response["Body"].read()
     repos = list(json.loads(raw_bytes.decode("utf-8")))
 
     print(repos)
 
-    conn = psycopg2.connect(
-            host='localhost',
-            password='postgre',
-            port=5432,
-            user='postgre',
-            dbname='github_trends')
+    conn = get_pg_connection()
 
     # cur = conn.cursor()
     # for repo in repos:
@@ -98,6 +93,9 @@ def load_trends(file: str):
     #     RETURNING id_rep'''
     #     cur.execute(query)
     #     id_rep = cur.fetchone()[0]
+    #conn.commit()
+    #cur.close()
+    #conn.close()
 
 with DAG(
     'main_data_trends_dag',

@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import timedelta, datetime
-from config import token
+from src.token import token
 
 def get_github_trends() -> list:
     headers = {
