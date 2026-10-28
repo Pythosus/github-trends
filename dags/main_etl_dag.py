@@ -84,18 +84,23 @@ def load_trends(file: str):
 
     print(repos)
 
-    conn = get_pg_connection()
+    conn = psycopg2.connect(get_pg_connection())
 
-    # cur = conn.cursor()
-    # for repo in repos:
-    #     query = f'''INSERT INTO repositories(name_rep, stars, description)
-    #     VALUES({repo['name']}, {repo['stars']}, {repo['description']})
-    #     RETURNING id_rep'''
-    #     cur.execute(query)
-    #     id_rep = cur.fetchone()[0]
-    #conn.commit()
-    #cur.close()
-    #conn.close()
+    cur = conn.cursor()
+    for repo in repos:
+        query = '''INSERT INTO repositories(name_rep, stars, description)
+        VALUES(%s, %s, %s)
+        RETURNING id_rep'''
+        cur.execute(query, (repo['name'], repo['stars'], repo['description']))
+        id_rep = cur.fetchone()[0]
+        for x in repo['keywords']:
+            for word, score in x.items():
+                query_k = f'''INSERT INTO keywords(id_rep, tech, score)
+                VALUES (%s, %s, %s)'''
+                cur.execute(query_k, (id_rep, word, score))
+    conn.commit()
+    cur.close()
+    conn.close()
 
 with DAG(
     'main_data_trends_dag',
