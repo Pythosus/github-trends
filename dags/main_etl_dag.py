@@ -1,7 +1,8 @@
 import os
 from airflow import DAG
 from airflow.decorators import task
-from airflow.utils.dates import days_ago
+from airflow.operators.empty import EmptyOperator
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime, timedelta
 import boto3, json
 from botocore.exceptions import ClientError
@@ -115,3 +116,12 @@ with DAG(
     load = load_trends(transformed)
 
     raw >> transformed >> load
+
+with DAG(
+    'generate_top',
+    schedule=None,
+    default_args=default_args,
+    description='top tech in github',
+    tags=['top', 'trends', 'GitHub']
+) as generator:
+    pass
