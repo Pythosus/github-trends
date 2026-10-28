@@ -3,8 +3,8 @@ CREATE TABLE repositories (
 	name_rep VARCHAR(50) NOT NULL,
 	stars INT NOT NULL,
 	description TEXT NOT NULL,
-	data_ DATE DEFAULT CURRENT_DATE,
-	PRIMARY KEY (id_rep)
+	date_ DATE DEFAULT CURRENT_DATE,
+	PRIMARY KEY (name_rep, date_)
 );
 
 CREATE TABLE keywords (
@@ -18,5 +18,5 @@ CREATE TABLE keywords (
 CREATE TABLE top_tech (
 	tech VARCHAR(50) NOT NULL,
 	total_score NUMERIC(5, 4) NOT NULL,
-	start_data DATE NOT NULL
+	start_date_ DATE NOT NULL
 );
