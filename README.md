@@ -58,7 +58,7 @@ cp token.example.py token.py
 Отредактируйте `token.py`:
 
 ```python
-GITHUB_TOKEN = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+token = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
 > Файл `token.py` уже добавлен в `.gitignore` и **не попадёт** в репозиторий.
